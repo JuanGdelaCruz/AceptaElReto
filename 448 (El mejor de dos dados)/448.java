@@ -6,74 +6,82 @@ import java.util.Collections;
 import java.util.InputMismatchException;
 
 public class Dados {
-	// --------------------------------------------------LECTOR--------------------------------------------------------------
-	static final class InputReader {
-		private final InputStream stream;
-		private final byte[] buf = new byte[1024];
-		private int curChar;
-		private int numChars;
-
-		public InputReader(InputStream stream) {
-			this.stream = stream;
-		}
-
-		private int read() throws IOException {
-			if (curChar >= numChars) {
-				curChar = 0;
-				numChars = stream.read(buf);
-				if (numChars <= 0)
-					return -1;
+	public static void main(String[] args) throws IOException {
+		InputReader sc = new InputReader(System.in);
+		PrintWriter output = new PrintWriter(System.out);
+		StringBuilder sBuilder = new StringBuilder(1000);
+		int caras;
+		int relaciones = 0;
+		int n1, n2;
+		ArrayList<Integer> valores1, valores2;
+		while ((caras = sc.readInt()) != 0) {
+			valores1 = new ArrayList<Integer>();
+			valores2 = new ArrayList<Integer>();
+			for (int i = 0; i < caras; i++) {
+				valores1.add(sc.readInt());
 			}
-			return buf[curChar++];
-		}
-
-		public final int readInt() throws IOException {
-			return (int) readLong();
-		}
-
-		public final long readLong() throws IOException {
-			int c = read();
-			while (isSpaceChar(c)) {
-				c = read();
-				if (c == -1)
-					throw new IOException();
+			for (int i = 0; i < caras; i++) {
+				valores2.add(sc.readInt());
 			}
-			boolean negative = false;
-			if (c == '-') {
-				negative = true;
-				c = read();
+			Collections.sort(valores1);
+			Collections.sort(valores2);
+			int index, index2 = 0;
+			int PP = 0, PG = 0;
+			for (int i = 0; i < caras; i++) {
+				int comparar = valores1.get(i);
+				index = Collections.binarySearch(valores2, comparar);
+				if (index < 0) {// el elemento no esta en el array
+					index=-index-1;
+					PP += caras - index;
+					PG += index;
+				} else {// el elemento esta en el array
+						// busqueda binaria que devuelve la posicion de la ultima ocurrencia en el array
+					int low = 0, high = caras - 1, result = -1, mid = 0;
+					while (low <= high) {
+						mid = low + (high - low) / 2;
+						if (valores2.get(mid) == comparar) {
+							result = mid;
+							low = mid + 1;
+						} else if (comparar < valores2.get(mid)) {
+							high = mid - 1;
+						} else {
+							low = mid + 1;
+						}
+					}
+					PP += (caras - (result + 1));
+					low = 0;
+					high = caras - 1;
+					result = -1;
+					mid = 0;
+					while (low <= high) {
+						mid = low + (high - low) / 2;
+						if (valores2.get(mid) == comparar) {
+							result = mid;
+							high = mid - 1;
+						} else if (comparar < valores2.get(mid)) {
+							high = mid - 1;
+						} else {
+							low = mid + 1;
+						}
+						
+					}
+					PG += result;
+
+				}
+
 			}
-			long res = 0;
-			do {
-				if (c < '0' || c > '9')
-					throw new InputMismatchException();
-				res *= 10;
-				res += (c - '0');
-				c = read();
-			} while (!isSpaceChar(c));
-			return negative ? (-res) : (res);
+			if (PG == PP) {
+				sBuilder.append("NO HAY DIFERENCIA");
+			} else if (PG > PP) {
+				sBuilder.append("PRIMERO");
+			} else {
+				sBuilder.append("SEGUNDO");
+			}
+			sBuilder.append('\n');
 		}
+		output.print(sBuilder);
+		output.flush();
+		output.close();
 
-		public final int[] readIntBrray(int size) throws IOException {
-			int[] arr = new int[size];
-			for (int i = 0; i < size; i++)
-				arr[i] = readInt();
-			return arr;
-		}
-
-		public final String readString() throws IOException {
-			int c = read();
-			while (isSpaceChar(c))
-				c = read();
-			StringBuilder res = new StringBuilder();
-			do {
-				res.append((char) c);
-				c = read();
-			} while (!isSpaceChar(c));
-			return res.toString();
-		}
-
-		private boolean isSpaceChar(int c) {
-			return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == -1;
-		}
 	}
+}
